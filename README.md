@@ -93,6 +93,7 @@ class Session(Object):
 * varied the second unit test minimally and verified via manual verification 
 
 ## Things to Note
+* the insight_testsuite passes repo structure and test_1
 * array DS for the startDatetime(Str) and documentList attributes are not needed, takes up more space. I could have sufficed with having startDatetime only be the lastest startDateTime requested and gotten rid of documentList to save space. However, I used these extra details for debugging purposes. DocumentList can continue to use an array DS if we want to handle edge case where a user requests same document twice in a session and the program needs to differentiate unique documents. 
 * Though I downloaded sample EDGAR weblog files, I did not test to see how my program handles large datasets. 
 * I did not test the program on any linux distributions
