@@ -7,9 +7,13 @@ sessionObjects = {}
 # NOTE: set time that determines inactivity of session
 def setInactivetime(inactivityFile):
 	with open(inactivityFile, "r") as inactivityFileR:
-		inactiveMax = inactivityFileR.read()
-		# print("inactiveMax: %s" %inactiveMax)
-		return inactiveMax
+
+		try: 
+			inactiveMax = int(float(inactivityFileR.read()))
+			# print("inactiveMax: %s" %inactiveMax)
+			return inactiveMax
+		except ValueError:
+			print("invalid value in inactivity_period.txt")
 
 
 # NOTE: set last requesttime that ends all active sessions, coming from input file
@@ -56,6 +60,10 @@ def outputFinishedSessions(currTimestamp, outputFile, inactiveMax, lastTimestamp
 			del sessionObjects[each]
 
 
+def checkInputlength(line):
+	line = line.split(",")
+	return len(line)
+
 # NOTE: reads each line of input file and either creates session object or updates existing one 
 def main(inputFile, inactivityFile, outputFile):
 
@@ -66,28 +74,33 @@ def main(inputFile, inactivityFile, outputFile):
 
 	for line in inputFileR[1:len(inputFileR)]:
 
-		line, ipAddr, currTimestamp, currTimestampStr, document = parseText(line)
+		lineLength = checkInputlength(line)
 
-		count += 1
-		print("LINE NO: %d" %count)
-
-		if (ipAddr in sessionObjects):
-			print("EXISTING SESSION")
-			sessionObjects[ipAddr].startDatetimes.append(currTimestamp)
-			sessionObjects[ipAddr].startDatetimesStr.append(currTimestampStr)
-			sessionObjects[ipAddr].documentList.append(document)
-			sessionObjects[ipAddr].numRequests = len(sessionObjects[ipAddr].documentList)
-			sessionObjects[ipAddr].show()
-
-			outputFinishedSessions(currTimestamp, outputFile, inactiveMax, lastTimestamp)
-
+		if (lineLength != 15):
+			continue
 		else:
-			print("NEW SESSION")
-			session = Session(ipAddr, currTimestamp, currTimestampStr, document)
-			sessionObjects[ipAddr] = session
-			sessionObjects[ipAddr].show()
+			line, ipAddr, currTimestamp, currTimestampStr, document = parseText(line)
 
-			outputFinishedSessions(currTimestamp, outputFile, inactiveMax, lastTimestamp)
+			count += 1
+			print("LINE NO: %d" %count)
+
+			if (ipAddr in sessionObjects):
+				print("EXISTING SESSION")
+				sessionObjects[ipAddr].startDatetimes.append(currTimestamp)
+				sessionObjects[ipAddr].startDatetimesStr.append(currTimestampStr)
+				sessionObjects[ipAddr].documentList.append(document)
+				sessionObjects[ipAddr].numRequests = len(sessionObjects[ipAddr].documentList)
+				sessionObjects[ipAddr].show()
+
+				outputFinishedSessions(currTimestamp, outputFile, inactiveMax, lastTimestamp)
+
+			else:
+				print("NEW SESSION")
+				session = Session(ipAddr, currTimestamp, currTimestampStr, document)
+				sessionObjects[ipAddr] = session
+				sessionObjects[ipAddr].show()
+
+				outputFinishedSessions(currTimestamp, outputFile, inactiveMax, lastTimestamp)
 
 
 

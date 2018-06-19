@@ -7,12 +7,13 @@ sessionObjects = {}
 # NOTE: set time that determines inactivity of session
 def setInactivetime(inactivityFile):
 	with open(inactivityFile, "r") as inactivityFileR:
+
 		try: 
 			inactiveMax = int(float(inactivityFileR.read()))
+			# print("inactiveMax: %s" %inactiveMax)
 			return inactiveMax
-		except ValueError as e:
-			print("Invalid value in inactivity_period.txt")
-		#print("inactiveMax: %s" %inactiveMax)
+		except ValueError:
+			print("invalid value in inactivity_period.txt")
 
 
 # NOTE: set last requesttime that ends all active sessions, coming from input file
@@ -59,7 +60,7 @@ def outputFinishedSessions(currTimestamp, outputFile, inactiveMax, lastTimestamp
 			del sessionObjects[each]
 
 
-def checkInput(line):
+def checkInputlength(line):
 	line = line.split(",")
 	return len(line)
 
@@ -71,13 +72,11 @@ def main(inputFile, inactivityFile, outputFile):
 	lastTimestamp = setLastTimestamp(inputFileR)
 	count = 0
 
-# Summary: Input sanitization 
-# - header removed in log.csv
 	for line in inputFileR[1:len(inputFileR)]:
 
-		checkLength = checkInput(line)
+		lineLength = checkInputlength(line)
 
-		if (checkLength != 15):
+		if (lineLength != 15):
 			continue
 		else:
 			line, ipAddr, currTimestamp, currTimestampStr, document = parseText(line)
