@@ -35,6 +35,20 @@ def parseText(line):
 
 	return line, ipAddr, currTimestamp, currTimestampStr, document
 
+def deleteEndedSessions():
+	for each in list(sessionObjects):
+		if (sessionObjects[each].activeStatus == False):
+			del sessionObjects[each]
+
+def outputFinishedSessions(currTimestamp, outputFile):
+	for each in sessionObjects:
+		inactiveTime = int((currTimestamp-sessionObjects[each].lastStartDatetime()).total_seconds())
+
+		if ((inactiveTime == inactiveMax) or (currTimestamp == lastTimestamp)):
+			sessionObjects[each].activeStatus = False
+			outputFileW = open(outputFile, "a+")
+			outputFileW.write(sessionObjects[each].ipAddress+","+sessionObjects[each].startDatetimesStr[0]+","+sessionObjects[each].lastStartDatetimeStr()+","+str(sessionObjects[each].timeElapsed())+","+str(sessionObjects[each].numRequests)+"\n")
+
 
 def main(inputFile, inactivityFile, outputFile):
 
@@ -52,13 +66,24 @@ def main(inputFile, inactivityFile, outputFile):
 			sessionObjects[ipAddr].startDatetimesStr.append(currTimestampStr)
 			sessionObjects[ipAddr].documentList.append(document)
 			sessionObjects[ipAddr].numRequests = len(sessionObjects[ipAddr].documentList)
-			sessionObjects[ipAddr].show()
+			# sessionObjects[ipAddr].show()
+
+			outputFinishedSessions(currTimestamp, outputFile)
+
 		else:
-			session = Session(ipAddr, currTimestamp, currTimestampStr, document)
+			session = Session(ipAddr, currTimestamp, currTimestampStr, document, True)
 			sessionObjects[ipAddr] = session
-			sessionObjects[ipAddr].show()
+			# sessionObjects[ipAddr].show()
+
+			outputFinishedSessions(currTimestamp, outputFile)
 
 
+	#Logic
+
+	# if currtime - lasttime of element is = 2 write to output File
+	# if currtime = lasttimestamp then sort remainder items by time then ip addr, then output to file
+
+	#TO Do
 
 
 if __name__ == '__main__':
@@ -66,6 +91,7 @@ if __name__ == '__main__':
 	if (len(sys.argv) != 4):
 		sys.exit(1)
 	else:
+		open(sys.argv[3], 'w').close()
 		main(sys.argv[1], sys.argv[2], sys.argv[3])
 
 
