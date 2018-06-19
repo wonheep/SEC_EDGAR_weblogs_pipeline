@@ -7,7 +7,6 @@ sessionObjects = {}
 # NOTE: set time that determines inactivity of session
 def setInactivetime(inactivityFile):
 	with open(inactivityFile, "r") as inactivityFileR:
-
 		try: 
 			inactiveMax = int(float(inactivityFileR.read()))
 			# print("inactiveMax: %s" %inactiveMax)

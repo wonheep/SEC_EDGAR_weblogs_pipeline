@@ -63,6 +63,7 @@ class Session(Object):
 ## Testing
 * created method functions to display session attributes 
 * primarily used print statements to debug, commented throughout the code
+* added input sanitization test case and minor variance to log.csv to verify logic of program produces correct outcome
 
 ## Things to Note
 * the insight_testsuite passes repo structure and test_1
