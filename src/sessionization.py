@@ -48,7 +48,6 @@ def outputFinishedSessions(currTimestamp, outputFile, inactiveMax, lastTimestamp
 		# print("last timestamp: %s" %lastTimestamp)
 
 		if ((inactiveTime == inactiveMax) or (currTimestamp == lastTimestamp)):
-			print("READY TO OUTPUT")
 			sessionObjects[each].activeStatus = False
 			outputFileW = open(outputFile, "a+")
 			outputFileW.write(sessionObjects[each].ipAddress+","+sessionObjects[each].startDatetimesStr[0]+","+sessionObjects[each].lastStartDatetimeStr()+","+str(sessionObjects[each].timeElapsed())+","+str(sessionObjects[each].numRequests)+"\n")

@@ -5,33 +5,6 @@
 ## Objective
 Parse through a sample SEC EDGAR weblog file and output a summarized log of sessions into a .txt file. 
 
-## Repo Structure 
-├── README.md 
-    ├── run.sh
-    ├── src
-    │   └── sessionization.py
-    │   └── sessionObject.py
-    ├── input
-    │   └── inactivity_period.txt
-    │   └── log.csv
-    ├── output
-    |   └── sessionization.txt
-    ├── insight_testsuite
-        └── run_tests.sh
-        └── tests
-            └── test_1
-            |   ├── input
-            |   │   └── inactivity_period.txt
-            |   │   └── log.csv
-            |   |__ output
-            |   │   └── sessionization.txt
-            ├── test_2
-                ├── input
-                |  └── inactivity_period.txt
-                │  └── log.csv
-                |__ output
-                │   └── sessionization.txt
-
 ### Inputs
 * `log.csv` EDGAR weblog data 
 	* IP address (unique user)
