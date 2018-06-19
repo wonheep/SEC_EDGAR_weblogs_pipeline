@@ -33,11 +33,6 @@ def parseText(line):
 
 	return line, ipAddr, currTimestamp, currTimestampStr, document
 
-def deleteEndedSessions():
-	for each in list(sessionObjects):
-		if (sessionObjects[each].activeStatus == False):
-			del sessionObjects[each]
-
 def outputFinishedSessions(currTimestamp, outputFile, inactiveMax, lastTimestamp):
 	
 	print("Trying to Output")
@@ -90,21 +85,13 @@ def main(inputFile, inactivityFile, outputFile):
 		else:
 			print("NEW SESSION")
 			print("LINE NO: %d" %count)
-			session = Session(ipAddr, currTimestamp, currTimestampStr, document, True)
+			session = Session(ipAddr, currTimestamp, currTimestampStr, document)
 			sessionObjects[ipAddr] = session
 			sessionObjects[ipAddr].show()
 
 			outputFinishedSessions(currTimestamp, outputFile, inactiveMax, lastTimestamp)
 			print("++++++++++++++++\n")
 
-
-
-	#Logic
-
-	# if currtime - lasttime of element is = 2 write to output File
-	# if currtime = lasttimestamp then sort remainder items by time then ip addr, then output to file
-
-	#TO Do
 
 
 if __name__ == '__main__':
