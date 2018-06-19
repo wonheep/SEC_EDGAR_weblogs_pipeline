@@ -11,7 +11,7 @@ Parse through a sample SEC EDGAR weblog file and output a summarized log of sess
 	* Datetime of request
 	* document key = cik+accession+extension
 
-* `inactivity_period.txt` time of inactivity unitl session ends in seconds
+* `inactivity_period.txt` time of inactivity until session ends in seconds
 
 ### Output
 * `sessionization.txt` each line records a user session with below stats
@@ -24,14 +24,14 @@ Parse through a sample SEC EDGAR weblog file and output a summarized log of sess
 ## Requirements
 * duration of a session is inclusive
 * last timestamp of the input file will close out all active sessions
-* session ends after certain amt of time of inactivity 
+* session ends after certain time of inactivity 
 
 ## Design Choices
-* created `class sessionObjects` to define a session. I implemented object-oriented programming because I wanted to keep track of a given IP Address's many requests and corresponding request times without making use of multiple hashmaps. I include only one hashmap which uses the IP address as the key and its value is a session object. 
+* created `class sessionObjects` to define a session. I implemented object-oriented programming because I wanted to keep track of a given IP Address's many requests and corresponding request times without making use of multiple hashmaps. I use one global hashmap, uses the IP address as the key and its value is a session object. 
 * The session object has thefollowing attributes:
 	* IP address
-	* list of all request times in both datetime and string form
-	* list of documents requested
+	* list of all request times in both datetime and string format
+	* list of documents requested, unique document is cik+accession+extension
 	* updated count of number of document requests. I thought it was best to 
 ```Python
 class Session(Object):
@@ -42,13 +42,13 @@ class Session(Object):
 			self.documentList = [documentList]
 			self.numRequests = len(self.documentList)
 ```
-* The realtime reporting is mimiced via this logic: after each line from input file is read it creates a new session object or updates an existing session object based on IP key and keeps track of the "current time", aka the current line being processed. 
-* After every create or update of a session object it goes into `outputFinishedSessions()` and reiterates through the existing hashmap to recalculate which users have been inactive. the program  checks to see if any elements in the hashmap has been inactive for n seconds (n = time in seconds provided by inactivity_period.txt) or if the current time being read has already reached the final timestamp in the input file, then writes to the output file after a session ends and deletes that element from the hashmap. 
+* The realtime reporting is mimiced by having each line from the input file either create a new session object or update an existing session object based on its IP key. The "current time" is monitored, aka the current line being processed. 
+* After every create or update of a session object it goes into `outputFinishedSessions()` and reiterates through the existing hashmap to recalculate which users have been inactive. The program  checks to see if any elements in the hashmap have been inactive for n seconds (n = time in seconds provided by inactivity_period.txt) or if the current time being read has already reached the final timestamp in the input file, then writes to the output file after a session ends and deletes that element from the hashmap. 
 * I aimed to modularize the program to reduce redundant operations
 
 ## Dependencies
 * written in `python3`, shell scripts reflect this change
-	* if you've installed multiple python versions, you can set python alias to be python3 in bash_profile
+	* if you've installed multiple python versions, you can set python alias to be python3 in your bash_profile
 * Libraries
 	* `datetime` used to calculate time elapsed in seconds in a given session
 	* `sys` used to read/write from/to files on local machine 
@@ -63,10 +63,10 @@ class Session(Object):
 ## Testing
 * created method functions to display session attributes 
 * primarily used print statements to debug, commented throughout the code
-* varied the second unit test minimally and verified via manual verification 
 
 ## Things to Note
 * the insight_testsuite passes repo structure and test_1
-* array DS for the startDatetime(Str) and documentList attributes are not needed, takes up more space. I could have sufficed with having startDatetime only be the lastest startDateTime requested and gotten rid of documentList to save space. However, I used these extra details for debugging purposes. DocumentList can continue to use an array DS if we want to handle edge case where a user requests same document twice in a session and the program needs to differentiate unique documents. 
-* Though I downloaded sample EDGAR weblog files, I did not test to see how my program handles large datasets. 
-* I did not test the program on any linux distributions
+* array DS for the startDatetime(Str) and documentList attributes are not needed, takes up more space. I could have sufficed with having startDatetime only be the lastest startDateTime requested and gotten rid of documentList to save space. However, I used these extra details for debugging purposes. DocumentList can continue to use an array DS if we want to handle an edge case where a user requests same document twice in a session and the program needs to differentiate unique documents. I do not check for uniqueness of of a document in my program. 
+* I used the example EDGAR weblog data on the coding challenge README, I did not test to see how my program handles large datasets. 
+* I was not able to test the program on any linux distributions. 
+
