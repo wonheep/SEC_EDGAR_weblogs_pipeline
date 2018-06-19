@@ -3,8 +3,6 @@ import datetime
 from sessionObject import *
 
 sessionObjects = {}
-inactiveMax = 0
-lastTimestamp = None
 currTimestamp = None
 
 
@@ -13,6 +11,7 @@ def setInactivetime(inactivityFile):
 	with open(inactivityFile, "r") as inactivityFileR:
 		inactiveMax = inactivityFileR.read()
 		print("inactiveMax: %s" %inactiveMax)
+		return inactiveMax
 
 
 def setLastTimestamp(inputFile):
@@ -23,6 +22,7 @@ def setLastTimestamp(inputFile):
 	lastTime = datetime.datetime.strptime(lastTimeStr, "%Y-%m-%d %H:%M:%S")
 	lastTimestamp = lastTime
 	print("lastTimestamp: %s" %lastTimestamp)
+	return lastTimestamp
 
 
 def parseText(line):
@@ -40,42 +40,65 @@ def deleteEndedSessions():
 		if (sessionObjects[each].activeStatus == False):
 			del sessionObjects[each]
 
-def outputFinishedSessions(currTimestamp, outputFile):
-	for each in sessionObjects:
-		inactiveTime = int((currTimestamp-sessionObjects[each].lastStartDatetime()).total_seconds())
+def outputFinishedSessions(currTimestamp, outputFile, inactiveMax, lastTimestamp):
+	
+	print("Trying to Output")
 
-		if ((inactiveTime == inactiveMax) or (currTimestamp == lastTimestamp)):
+	for each in list(sessionObjects):
+		inactiveTime = int((currTimestamp-sessionObjects[each].lastStartDatetime()).total_seconds())
+		
+		print("~~~~~~~")
+		print(sessionObjects[each].ipAddress)
+		print(sessionObjects[each].numRequests)
+		print("inactive time:%d " %inactiveTime)
+		print("current time: %s " %currTimestamp)
+		print("last timestamp: %s" %lastTimestamp)
+		print("~~~~~~~")
+
+		if ((inactiveTime == inactiveMax+1) or (currTimestamp == lastTimestamp)):
+			print("READY TO OUTPUT")
 			sessionObjects[each].activeStatus = False
 			outputFileW = open(outputFile, "a+")
 			outputFileW.write(sessionObjects[each].ipAddress+","+sessionObjects[each].startDatetimesStr[0]+","+sessionObjects[each].lastStartDatetimeStr()+","+str(sessionObjects[each].timeElapsed())+","+str(sessionObjects[each].numRequests)+"\n")
 
+			del sessionObjects[each]
+
 
 def main(inputFile, inactivityFile, outputFile):
 
-	setInactivetime(inactivityFile)
+	inactiveMax = int(setInactivetime(inactivityFile))
 	inputFileR = open(inputFile, "r").readlines()
-	setLastTimestamp(inputFileR)
+	lastTimestamp = setLastTimestamp(inputFileR)
 
+	count = 0
 
 	for line in inputFileR[1:len(inputFileR)]:
+		count += 1
 		
 		line, ipAddr, currTimestamp, currTimestampStr, document = parseText(line)
 
 		if (ipAddr in sessionObjects):
+			print("EXISTING Session")
+			print("LINE NO: %d" %count)
 			sessionObjects[ipAddr].startDatetimes.append(currTimestamp)
 			sessionObjects[ipAddr].startDatetimesStr.append(currTimestampStr)
 			sessionObjects[ipAddr].documentList.append(document)
 			sessionObjects[ipAddr].numRequests = len(sessionObjects[ipAddr].documentList)
-			# sessionObjects[ipAddr].show()
+			sessionObjects[ipAddr].show()
 
-			outputFinishedSessions(currTimestamp, outputFile)
+			outputFinishedSessions(currTimestamp, outputFile, inactiveMax, lastTimestamp)
+			print("++++++++++++++++\n")
 
 		else:
+			print("NEW SESSION")
+			print("LINE NO: %d" %count)
 			session = Session(ipAddr, currTimestamp, currTimestampStr, document, True)
 			sessionObjects[ipAddr] = session
-			# sessionObjects[ipAddr].show()
+			sessionObjects[ipAddr].show()
 
-			outputFinishedSessions(currTimestamp, outputFile)
+			outputFinishedSessions(currTimestamp, outputFile, inactiveMax, lastTimestamp)
+			print("++++++++++++++++\n")
+
 
 
 	#Logic
